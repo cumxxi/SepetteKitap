@@ -1,0 +1,139 @@
+İlk önce npx create-react-app uygulama ismi yazıldı
+
+sonra minik bir component oluşturacağız.
+--src/componenets ile
+--conponents içerisine  Cart.js  ve Products.js ekleyeceğiz
+--global bölüme data.js oluşturulup bilgileri tutacağız.
+
+--index.js de ise  app React.stritch fragmentin aldında Router ile kaplanacak
+bu react router react-router-dom dan import edilecek
+
+--app.js kısmında ise BrowserRouter /Router /Route kullanılarak 
+bir rota belirlenecek.
+
+Routes içinde Route kullanılacak
+--<Route parth="/" element{<Products />} /> örneği gibi rotalar belirlenecek
+
+Ancak bunların tamamı return'dan hemen sonra export const örnekcontext  createContext();
+ile <örnekContext value={datamız veya göndermek istediğimiz şeyi} gönderiyoruz
+
+Bootstrap da buradan gönderilecek ama
+-- yarn add react-bootstrap bootstrap ile tanımlama yapılıp
+-- import "bootstrap/dist/css/bootstrap.min.css"; ile import ediliyor
+
+Route edilecek sayfalar da burada tanımlanacak
+
+Sonrasında component dosyası içerisinde Navigation.js oluştur.
+
+bir navbar oluştur 
+
+--import { Nav, Container, Navbar } from "react-bootstrap"; import et
+
+      <Navbar bg="dark" variant="dark">
+        <Container>
+          <Navbar.Brand href="/">Home</Navbar.Brand>
+          <Nav className="me-auto">
+            <Nav.Link href="/Cart">Cart</Nav.Link>
+          </Nav>
+        </Container>
+      </Navbar>
+
+link işlemlerini bura göre yap. <a></a>tagı artık kullanılmıyor.
+
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import { örnekcontext } from "../App";
+
+Bunlar oluşturduğumuz context yapımızı kullanmamızı, 
+linklememizi sağlayacak
+
+const Products = (props) => {
+  const context = useContext(örnekContext);
+
+  Link to="/cart">Sepetim</Link> bir <H> tagı içerisinde de de gösterebilirsin
+
+  sonrasında div içerisinde 
+  --context.map(m => <div>m.artık hangi data varsa</div>)
+ 
+  ///////////////////////////////////////////////
+  ---------------DİKKAT--------------------------
+  ///////////////////////////////////////////////
+  Şimdi data usecontext yada modern hali redux işlemlerine geçeceğiz.
+  Burada dikkat edilmesi gereken şey kaç tane dizi kallancağımızdır.
+  Mesela gelen datalar bir dizi ve bunları koyacağımız seper ise ayrı bir dizi olacak
+  Bu nednele 2 dizi kullanacağız ancak bu küçük bir işlem olduğu için böyle
+  Birinci dizi bizim datadan gelen dizimiz ikinci diziyi ise biz üreteceğiz.
+  ///////////////////////////////////////////////
+
+  Şimdi en üst componentimiz app.js
+  O zaman app.js de bir state oluşturmamız lazım.
+  Burada bir kitap listesini ve sepet içerisindeki ürünleri tutacak 
+  iki tane dizi oluşturmamız gerekiyor.
+  Bunu function App { altında ama return üstünde ki aralıkta yazacağız
+
+  const { state, setState } = useState({
+	booklist :data, zaten import etmiştik
+ 	cart: []  henüz içini doldurmadığımız için boş olarak başlayacak
+  })
+
+  Şimdi önceden hatırlarsan örnekContext.provider içerisinde value'ye 
+  bir  data koymuştuk ancak artık sadece data değil kitapları da göndereceğiz
+  ancak kitapları şimdi booklist diyerek stateye eklemiştik artık data yerine 
+  booklist var ancak onunda yanında cart :[] var ikisini stateye koymuştuk.
+  o zaman stateyi gönderiyoruz.
+
+  önceden Products sayfasında datayı direkt çekmiştik ancak şimdi booklist altından 
+  çekmemiz gerekiyor.
+  map ettiğimiz yerde bu işlemi yapacağız.
+
+  //////////////////////////////////////////////////////////////
+  kitap bilgilerini booklistten alıp sepete atacak bir fonksiyon 
+  yazmmaız gerekiyor
+
+  bunu app.js'de yazıyoruz. Çünkü ana komponent o yada bunu bir component olarak 
+  da üretebiliriz.
+
+  Bu fonksiyon ile kitabı sepete ataarken statemizi de düzenleyecek
+  bu nedenle setStateyi de eklememiz gerekiyor. Statemiz bizim bir obje idi.
+  Bu nedenle önce diğer objei bunun içiğne çağırıyoruz ki yeni biir state oluşsun
+  bunuda  ...state ile sağlıyorduk, ve bunun  üzerine cartı ekleyip düzenliyoruz
+  Ancak şuna dikkate etmemiz gerekiyor.
+  ekleyeceğimiz kitap datada varsa o kitabın adedini düzenleyecek.
+  Yani bir kitabı sepete attık sepette aynı kitaptan varsa aynı kitabı bir listede iki kere göstermeyecek
+  kitabın adet sayısını arttıracak. Yeni bir ürün olarak eklemeyeceğiz
+  Ancak kitap sepette yok ise sepete ekleyeceğiz o nedenle önce kitabın id 'si ile
+  kitap sepette varmı yok mu ona bakmamız gerekiyor
+
+  ---- Burada cart:state.cart.find() ile kitabı arayacağız.addtoCart'ın içerisinde
+  cartItem leri gez eğer cartItem._id veya id === book.id'ye ) ? Bu sefer kartın içerisindeki id'si eşit olanı
+  count değerini arttır, yoksa ekle ve ona count değeri olarak 1 ver
+
+  yani find ile sepette varmı ona bakıyoruz ondan sonra find içinde sepet için
+  işlem yapıp sepette var ise ekleme yanlızca count değerini arttıri, yok ise ekle bir de 
+  count değeri 1 olarak ata o da yoksa birşey yapma öyle bırak dedik.sonra mapğ dan çıkıp find'in
+  ikinci işlemini geçtik. eğer kitap yok ise carttaki tüm işlemleri tekrar et yani
+  [...state.cart,] dha sonra kitabı buraya ekle ve ona bir de count değeri var
+  yani [...state.cart, {...book, count: 1}] çünkü bizim orjinal değerlerimiz de 
+  bir count değeri yok. Ve onu kaydet. Yani kartı yeni bir dizi ile update etmiş olduk.
+  kartın içerisinde başka alışverişler var ise onları bozmakdık yeni bir dizi ile tekrar ermiş olduk
+  yanında ayrıca yeni bir kitabı da 1 adet olark eklemiş olduk.
+
+  --Şimdi bu fonksiyonu alt komponentlere de göndermemiz lazım. Çünkü bu tanım sadece 
+  app.js'de yapıldı ama kullanımı alt koponent'de nerede istiyorsak orada çalışacak.
+
+  Provider ile sadece stateyi göndeiyorduk o nedenle sadece basit bir objede tekil olarak göndermemizde 
+  sakınca yoktu ancak buradan 2 veya daha fazla obje veya item gönderemiyorum. Bunu bir objeye sarıp öylece göndereceğiz.
+  Bu nedenle map attiğimiz yerde stateyi de bildirmek zorunda kalacağız.
+  {context.state.bookList.map(m=> gibi)}
+
+  -- sonrada onClick fonksiyonu ile de işlemi gerçekleştirelim.
+   /////////////ADDCART///////////////////////////
+    product mapinin sonuda onClick ile bir tıklandığında sepete eklenmesini ve yukarıda yazılan fonksiyonu çalıştıracak olan onClik işlemi
+    product içerisindeki map işleminin içerisinde bir butana atanır ve 
+    tıklandığında context içerisindeki addtoCart'ı çağır ve çalıştı ona da istenen kitabın bilgisini tutan book.id bilgisi parametre olark verildin
+    demiş olduk yani kısaca onclick={()=> context.addToCart(book.id)}; olarak yazılır.
+  
+
+
+
+
